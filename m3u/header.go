@@ -7,12 +7,14 @@ import (
 
 type Header struct{ Country, Provider, City string }
 
-func (h *Header) String() string {
+func (h *Header) String() string { return EXTM3UHeader(h.Provider) }
+
+func EXTM3UHeader(author string) string {
 	const start = `#EXTM3U list-autor="`
 	var b strings.Builder
-	b.Grow(len(start) + len(h.Provider) + 1)
+	b.Grow(len(start) + len(author) + 1)
 	b.WriteString(start)
-	b.WriteString(h.Provider)
+	b.WriteString(author)
 	b.WriteByte('"')
 	return b.String()
 }

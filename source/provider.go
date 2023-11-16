@@ -1,7 +1,7 @@
 package source
 
 func NewProvider(provider string) *Source {
-	return newSource(plistRegex.FindStringSubmatch(provider))
+	return newSource(providerRegex.FindStringSubmatch(provider))
 }
 
 func NewProviders(s []string) (providers Sources) {

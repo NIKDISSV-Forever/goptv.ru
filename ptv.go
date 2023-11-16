@@ -1,6 +1,7 @@
 package ptv
 
 import (
+	"fmt"
 	"github.com/nikdissv-forever/goptv.ru/internal"
 	"github.com/nikdissv-forever/goptv.ru/m3u"
 	"github.com/nikdissv-forever/goptv.ru/pkg"
@@ -32,18 +33,18 @@ const (
 
 // Functions which automatically insert prefix at the start of query
 
-func Provider(name string) (source.Source, error) { return QueryProvider(provider) }
-func Plist() (source.Source, error)               { return QueryPlist(plist) }
+func Provider(name string) (source.Sources, error) { return QueryProvider(provider) }
+func Plist() (source.Sources, error)               { return QueryPlist(plist) }
 
 func Ch(name string) ([]*m3u.Channel, error) { return QueryCh(pkg.Concat(ch, name)) }
 func Pl(name string) (*source.Pl, error)     { return QueryPl(pkg.Concat(pl, name)) }
 
-func Search(q string) (any, error) {
+func Search(q string) (fmt.Stringer, error) {
 	if strings.EqualFold(q, plist) {
 		return QueryPlist(q)
-	} else if strings.EqualFold(q[:len(ch)], ch) {
+	} else if len(q) >= len(ch) && strings.EqualFold(q[:len(ch)], ch) {
 		return QueryCh(q)
-	} else if strings.EqualFold(q[:len(pl)], pl) {
+	} else if len(q) >= len(pl) && strings.EqualFold(q[:len(pl)], pl) {
 		return QueryPl(q)
 	}
 	return QueryProvider(q)

@@ -1,12 +1,23 @@
 package source
 
-import "strconv"
+import (
+	"fmt"
+	"github.com/nikdissv-forever/goptv.ru/pkg"
+	"strconv"
+)
 
 type Source struct {
 	Country, Name, City, Key string
 
 	Channels int
 }
+type Sources []*Source
+
+func (s *Source) String() string {
+	return fmt.Sprintf("%s %s, г. %s, %s, источников: %d", s.Country, s.Name, s.City, s.Key, s.Channels)
+}
+
+func (s Sources) String() string { return pkg.NewlinesJoin(s) }
 
 func newSource(match []string) (p *Source) {
 	if len(match) != 0 {
