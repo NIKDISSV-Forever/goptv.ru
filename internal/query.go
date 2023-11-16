@@ -14,7 +14,7 @@ var DefaultSearchHeaders = http.Header{
 	"Referer": {"https://proxytv.ru/"}, "User-Agent": {"Mozilla/5.0"},
 	"Content-Type": {"application/x-www-form-urlencoded"}}
 
-func Search(query string) (r Result, err error) {
+func Search(query string) (lines []string, err error) {
 	request, err := http.NewRequest("POST", SearchURL, strings.NewReader(pkg.Concat("udpxyaddr=", url.QueryEscape(query))))
 	if err != nil {
 		return
@@ -25,21 +25,19 @@ func Search(query string) (r Result, err error) {
 		return nil, err
 	}
 	defer do.Body.Close()
-	if do.ContentLength != -1 {
-		r = make([]byte, do.ContentLength)
-		_, err = do.Body.Read(r)
+	var b []byte
+	if do.ContentLength == -1 {
+		b, err = io.ReadAll(do.Body)
+	} else {
+		b = make([]byte, do.ContentLength)
+		_, err = do.Body.Read(b)
+	}
+	if err != nil {
 		return
 	}
-	return io.ReadAll(do.Body)
-}
-
-type Result []byte
-
-func (r Result) Lines() []string {
-	div := r.ResultsDiv()
+	div := strings.SplitN(string(b), "<hr>", 3)[1]
 	if hr := strings.LastIndex(div, "<br>"); hr != -1 {
 		div = div[:hr]
 	}
-	return strings.Split(div, "<br>")
+	return strings.Split(div, "<br>"), nil
 }
-func (r Result) ResultsDiv() string { return strings.SplitN(string(r), "<hr>", 3)[1] }

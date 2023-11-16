@@ -1,6 +1,7 @@
 package m3u
 
 import (
+	urllib "net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -9,12 +10,9 @@ import (
 type Extinf struct {
 	Raw          string
 	Duration, ID int
-	Group        string
-	Name         string
+	Group, Name  string
 	URL          string
 }
-
-type ExtInfos []*Extinf
 
 func (e *Extinf) String() string {
 	var b strings.Builder
@@ -35,7 +33,7 @@ func NewExtinf(extinf, url string) (r *Extinf) {
 		r.Group = match[3]
 		r.Name = match[4]
 	}
-	if url != "" {
+	if _, err := urllib.Parse(url); err == nil {
 		if r == nil {
 			r = &Extinf{}
 		}
@@ -43,9 +41,9 @@ func NewExtinf(extinf, url string) (r *Extinf) {
 	}
 	return
 }
-func NewExtInfos(extinf []string) (sequence ExtInfos) {
+func NewExtInfos(extinf []string) (sequence []*Extinf) {
 	const step = 3
-	sequence = make(ExtInfos, 0, len(extinf)/step)
+	sequence = make([]*Extinf, 0, len(extinf)/step)
 	for i := 0; i < len(extinf)-step; i += step {
 		if info := NewExtinf(extinf[i], extinf[i+1]); info != nil {
 			sequence = append(sequence, info)
